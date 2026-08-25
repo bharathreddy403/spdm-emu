@@ -280,6 +280,15 @@ int main(int argc, char *argv[])
     libspdm_return_t status;
     bool result;
 
+#ifndef _MSC_VER
+    /* Traces go to stdout, which glibc buffers when it is not a tty (for
+     * example a systemd service piping into journald). Line buffer it so traces
+     * appear as they are emitted. This must happen before any other operation
+     * on stdout. The Microsoft CRT has no line buffered mode and rejects a zero
+     * size for buffered modes, so leave Windows on the CRT default. */
+    setvbuf(stdout, NULL, _IOLBF, 0);
+#endif
+
     srand((unsigned int)time(NULL));
 
     process_args("spdm_responder_emu", argc, argv);
